@@ -34,18 +34,18 @@
         </div>
 
         <div>
-            <label for="author_name" class="block text-sm font-medium text-gray-700">Your Name</label>
-            {{ form.author_name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2") }}
-            {% if form.author_name.errors %}
-                <p class="mt-1 text-sm text-red-600">{{ form.author_name.errors[0] }}</p>
+            <label for="name" class="block text-sm font-medium text-gray-700">Your Name</label>
+            {{ form.name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2") }}
+            {% if form.name.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.name.errors[0] }}</p>
             {% endif %}
         </div>
 
         <div>
-            <label for="author_email" class="block text-sm font-medium text-gray-700">Your Email</label>
-            {{ form.author_email(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2") }}
-            {% if form.author_email.errors %}
-                <p class="mt-1 text-sm text-red-600">{{ form.author_email.errors[0] }}</p>
+            <label for="email" class="block text-sm font-medium text-gray-700">Your Email</label>
+            {{ form.email(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2") }}
+            {% if form.email.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.email.errors[0] }}</p>
             {% endif %}
         </div>
 

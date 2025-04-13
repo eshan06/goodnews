@@ -1,6 +1,29 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SelectField, URLField
-from wtforms.validators import DataRequired, Email, Length, Optional
+from wtforms import StringField, TextAreaField, SelectField, URLField, SubmitField, PasswordField
+from wtforms.validators import DataRequired, Email, Length, Optional, EqualTo, ValidationError
+from models import User
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Log In')
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=80)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')
+    
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different username.')
+            
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('This email address is already registered.')
 
 class SubmissionForm(FlaskForm):
     title = StringField('Title', validators=[
@@ -17,11 +40,11 @@ class SubmissionForm(FlaskForm):
         ('health', 'Health & Well-being'),
         ('education', 'Education & Access')
     ], validators=[DataRequired()])
-    author_name = StringField('Your Name', validators=[
+    name = StringField('Your Name', validators=[
         DataRequired(),
         Length(min=2, max=100)
     ])
-    author_email = StringField('Your Email', validators=[
+    email = StringField('Your Email', validators=[
         DataRequired(),
         Email()
     ])
@@ -32,4 +55,4 @@ class SubmissionForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     content = TextAreaField('Comment', validators=[DataRequired()])
-    author_name = StringField('Your Name', validators=[DataRequired(), Length(max=100)]) 
+    name = StringField('Your Name', validators=[DataRequired(), Length(max=100)]) 

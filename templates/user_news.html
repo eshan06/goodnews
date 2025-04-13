@@ -7,27 +7,51 @@
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-900 mb-4">📰 User News</h1>
         <p class="text-xl text-gray-600 max-w-3xl mx-auto">Discover inspiring stories shared by our community members. Each story represents a unique perspective on positive change and progress.</p>
+        {% if current_user.is_authenticated %}
+        <div class="mt-6">
+            <a href="{{ url_for('submit_story') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                ✏️ Submit Your Story
+            </a>
+        </div>
+        {% else %}
+        <div class="mt-6">
+            <p class="text-gray-600 mb-2">Want to share your own good news?</p>
+            <a href="{{ url_for('login') }}" class="text-green-600 hover:underline">Log in</a> or 
+            <a href="{{ url_for('register') }}" class="text-green-600 hover:underline">register</a> to submit your story.
+        </div>
+        {% endif %}
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for story in stories %}
+        {% for submission in submissions %}
         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            {% if story.image_url %}
-            <img src="{{ story.image_url }}" alt="{{ story.title }}" class="w-full h-48 object-cover">
+            {% if submission.image_url %}
+            <img src="{{ submission.image_url }}" alt="{{ submission.title }}" class="w-full h-48 object-cover">
             {% endif %}
             <div class="p-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-2">
-                    <a href="/user-news/{{ story.id }}" class="hover:text-green-600 transition-colors">
-                        {{ story.title }}
+                    <a href="/user-news/{{ submission.id }}" class="hover:text-green-600 transition-colors">
+                        {{ submission.title }}
                     </a>
                 </h2>
                 <div class="flex items-center justify-between mt-4">
-                    <span class="text-sm text-gray-500">By {{ story.author_name }}</span>
-                    <span class="text-sm text-gray-500">{{ story.created_at.strftime('%B %d, %Y') }}</span>
+                    <span class="text-sm text-gray-500">By {{ submission.name }}</span>
+                    <span class="text-sm text-gray-500">{{ submission.created_at.strftime('%B %d, %Y') }}</span>
                 </div>
             </div>
         </div>
         {% endfor %}
+        
+        {% if submissions|length == 0 %}
+        <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12">
+            <p class="text-gray-600 text-lg">No stories have been submitted yet.</p>
+            {% if current_user.is_authenticated %}
+            <p class="mt-4">
+                <a href="{{ url_for('submit_story') }}" class="text-green-600 hover:underline">Be the first to share a story!</a>
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %} 
