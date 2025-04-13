@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for article in articles %}
+        <a href="{{ article.url }}" target="_blank" class="block">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <img src="{{ article.image }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <span class="text-sm text-gray-500">{{ article.date }}</span>
+                    <h3 class="text-xl font-bold text-gray-900 mt-2">{{ article.title }}</h3>
+                    <p class="text-gray-600 mt-2">{{ article.excerpt }}</p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <section class="text-center py-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            Welcome to GoodNews
+        </h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Your source for positive news about climate, social justice, health, and education.
+            Stay informed about the good things happening in our world.
+        </p>
+    </section>
+
+    <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Featured Stories</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {% for article in featured_articles %}
+            <a href="{{ article.url }}" target="_blank" class="block">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="{{ article.image }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <span class="text-sm font-semibold text-green-600">Featured</span>
+                        <h3 class="text-xl font-bold text-gray-900 mt-2">{{ article.title }}</h3>
+                        <p class="text-gray-600 mt-2">{{ article.excerpt }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Explore Categories</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for key, category in categories.items() %}
+            <a href="/{{ key }}" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div class="text-4xl mb-4">{{ category.icon }}</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ category.name }}</h3>
+                <p class="text-gray-600">{{ category.description }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %} 
