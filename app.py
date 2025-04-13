@@ -1,8 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, session
+from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from news_service import NewsService
-from models import db, Submission, Comment, User
-from forms import SubmissionForm, CommentForm, LoginForm, RegistrationForm
+from ai_service import AIService
+from url_scraper import URLScraper
+from models import db, Submission, Comment, User, ChatSession, ChatMessage
+from forms import SubmissionForm, CommentForm, LoginForm, RegistrationForm, ArticleAnalysisForm, ChatMessageForm
 import os
 from dotenv import load_dotenv
 import random
@@ -17,8 +19,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///goodnews.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = 60 * 60 * 24 * 7  # 7 days in seconds
 
+# Register custom filters
+@app.template_filter('nl2br')
+def nl2br_filter(text):
+    if not text:
+        return ""
+    return text.replace('\n', '<br>')
+
 db.init_app(app)
 news_service = NewsService()
+ai_service = AIService()
+url_scraper = URLScraper()
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -182,6 +193,119 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+@app.route('/ai-assistant', methods=['GET', 'POST'])
+def ai_assistant():
+    form = ArticleAnalysisForm()
+    
+    if form.validate_on_submit():
+        # Extract article from URL
+        article_data, error = url_scraper.extract_article(form.article_url.data)
+        if error:
+            flash(f"Error extracting article: {error}", "danger")
+            return render_template('ai_assistant.html', form=form, user_sessions=[])
+        
+        article_text = article_data['content']
+        original_url = article_data['url']
+        
+        # Use the title from the article
+        title = article_data['title'] or "Article Analysis"
+        
+        # Generate summary
+        summary = ai_service.summarize_article(article_text)
+        
+        # Create a new chat session
+        session = ChatSession(
+            title=title,
+            article_text=article_text,
+            summary=summary,
+            user_id=current_user.id if current_user.is_authenticated else None
+        )
+        
+        # Add the AI's initial message (the summary)
+        initial_message = f"Here's a summary of the article from {original_url}:\n\n{summary}"
+        
+        ai_message = ChatMessage(
+            content=initial_message,
+            is_user=False,
+            session=session
+        )
+        
+        db.session.add(session)
+        db.session.add(ai_message)
+        db.session.commit()
+        
+        return redirect(url_for('chat_session', session_id=session.id))
+    
+    # Get the user's chat sessions if they're logged in
+    user_sessions = []
+    if current_user.is_authenticated:
+        user_sessions = ChatSession.query.filter_by(user_id=current_user.id).order_by(ChatSession.created_at.desc()).all()
+    
+    return render_template('ai_assistant.html', form=form, user_sessions=user_sessions)
+
+@app.route('/chat/<int:session_id>', methods=['GET', 'POST'])
+def chat_session(session_id):
+    chat_session = ChatSession.query.get_or_404(session_id)
+    
+    # Make sure users can only access their own chat sessions if logged in
+    if current_user.is_authenticated and chat_session.user_id and chat_session.user_id != current_user.id:
+        flash('You do not have permission to access this chat session', 'danger')
+        return redirect(url_for('ai_assistant'))
+    
+    # Get the messages for this session
+    messages = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.created_at).all()
+    
+    form = ChatMessageForm()
+    
+    if form.validate_on_submit():
+        # Add the user's message
+        user_message = ChatMessage(
+            content=form.message.data,
+            is_user=True,
+            session_id=session_id
+        )
+        db.session.add(user_message)
+        db.session.commit()
+        
+        # Get AI response
+        ai_response = ai_service.chat_about_article(chat_session.article_text, messages + [user_message])
+        
+        # Add the AI's response
+        ai_message = ChatMessage(
+            content=ai_response,
+            is_user=False,
+            session_id=session_id
+        )
+        db.session.add(ai_message)
+        db.session.commit()
+        
+        # Refresh the messages list
+        messages = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.created_at).all()
+        
+        # Clear the form
+        form.message.data = ''
+    
+    return render_template('chat_session.html', 
+                          session=chat_session,
+                          messages=messages,
+                          form=form)
+
+@app.route('/chat/<int:session_id>/delete', methods=['POST'])
+@login_required
+def delete_chat_session(session_id):
+    chat_session = ChatSession.query.get_or_404(session_id)
+    
+    # Make sure users can only delete their own chat sessions
+    if chat_session.user_id != current_user.id:
+        flash('You do not have permission to delete this chat session', 'danger')
+        return redirect(url_for('ai_assistant'))
+    
+    db.session.delete(chat_session)
+    db.session.commit()
+    
+    flash('Chat session deleted', 'success')
+    return redirect(url_for('ai_assistant'))
 
 if __name__ == '__main__':
     app.run(debug=True) 

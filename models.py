@@ -40,4 +40,26 @@ class Comment(db.Model):
     content = db.Column(db.Text, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    story_id = db.Column(db.Integer, db.ForeignKey('submission.id'), nullable=False) 
+    story_id = db.Column(db.Integer, db.ForeignKey('submission.id'), nullable=False)
+
+class ChatSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    article_text = db.Column(db.Text, nullable=False)
+    summary = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    messages = db.relationship('ChatMessage', backref='session', lazy=True, cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f'<ChatSession {self.title}>'
+
+class ChatMessage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    is_user = db.Column(db.Boolean, default=True)  # True if from user, False if from AI
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    session_id = db.Column(db.Integer, db.ForeignKey('chat_session.id'), nullable=False)
+    
+    def __repr__(self):
+        return f'<ChatMessage {"User" if self.is_user else "AI"}>' 

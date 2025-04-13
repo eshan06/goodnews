@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}{{ session.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900 truncate">{{ session.title }}</h1>
+        <a href="{{ url_for('ai_assistant') }}" class="text-green-600 hover:text-green-800">
+            &larr; Back to AI Assistant
+        </a>
+    </div>
+    
+    <!-- Original Article (Collapsible) -->
+    <div class="mb-8">
+        <button id="showArticleBtn" class="flex items-center justify-between w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-md text-left">
+            <span class="font-medium">View Original Article</span>
+            <svg id="chevronDown" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <svg id="chevronUp" class="h-5 w-5 text-gray-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+        </button>
+        <div id="articleContent" class="hidden mt-4 p-6 bg-white border border-gray-200 rounded-md shadow overflow-auto max-h-96">
+            <p class="whitespace-pre-line">{{ session.article_text }}</p>
+        </div>
+    </div>
+    
+    <!-- Chat Messages -->
+    <div id="chatMessages" class="bg-white border border-gray-200 rounded-lg shadow p-4 mb-6 h-96 overflow-y-auto">
+        <div class="space-y-4">
+            {% for message in messages %}
+                <div class="flex {% if message.is_user %}justify-end{% endif %}">
+                    <div class="max-w-3/4 rounded-lg p-3 {% if message.is_user %}bg-green-100 ml-8{% else %}bg-gray-100 mr-8{% endif %}">
+                        <div class="text-sm {% if message.is_user %}text-green-800{% else %}text-gray-800{% endif %}">
+                            {{ message.content|safe|nl2br }}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-2">
+                            {{ message.created_at.strftime('%I:%M %p') }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Chat Form -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow p-4">
+        <form method="POST" id="chatForm" class="flex space-x-3">
+            {{ form.csrf_token }}
+            <div class="flex-grow">
+                {{ form.message(class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2", placeholder="Ask a question about this article...") }}
+            </div>
+            <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <span id="sendText">Send</span>
+                <span id="loadingText" class="hidden">
+                    <svg class="animate-spin h-5 w-5 mr-2 inline" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Thinking...
+                </span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Scroll to bottom of chat on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Toggle article visibility
+        const showArticleBtn = document.getElementById('showArticleBtn');
+        const articleContent = document.getElementById('articleContent');
+        const chevronDown = document.getElementById('chevronDown');
+        const chevronUp = document.getElementById('chevronUp');
+        
+        showArticleBtn.addEventListener('click', function() {
+            articleContent.classList.toggle('hidden');
+            chevronDown.classList.toggle('hidden');
+            chevronUp.classList.toggle('hidden');
+        });
+        
+        // Show loading indicator when submitting
+        const chatForm = document.getElementById('chatForm');
+        const sendText = document.getElementById('sendText');
+        const loadingText = document.getElementById('loadingText');
+        
+        chatForm.addEventListener('submit', function() {
+            sendText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+        });
+    });
+</script>
+{% endblock %}
+
+{% macro nl2br(text) %}
+    {{ text|replace('\n', '<br>')|safe }}
+{% endmacro %} 

@@ -54,4 +54,15 @@ class SubmissionForm(FlaskForm):
     ])
 
 class CommentForm(FlaskForm):
-    content = TextAreaField('Comment', validators=[DataRequired()]) 
+    content = TextAreaField('Comment', validators=[DataRequired()])
+
+class ArticleAnalysisForm(FlaskForm):
+    article_url = URLField('Enter Article URL', validators=[DataRequired()])
+    submit = SubmitField('Analyze Article')
+    
+    def validate(self, extra_validators=None):
+        return super().validate(extra_validators)
+
+class ChatMessageForm(FlaskForm):
+    message = TextAreaField('Your Question', validators=[DataRequired()])
+    submit = SubmitField('Send') 
