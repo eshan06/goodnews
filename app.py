@@ -1,7 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from news_service import NewsService
-from models import db, Submission
-from forms import SubmissionForm
+from models import db, Submission, Comment
+from forms import SubmissionForm, CommentForm
 import os
 from dotenv import load_dotenv
 
@@ -112,10 +112,23 @@ def user_news():
     stories = Submission.query.order_by(Submission.created_at.desc()).all()
     return render_template('user_news.html', stories=stories)
 
-@app.route('/user-news/<int:story_id>')
+@app.route('/user-news/<int:story_id>', methods=['GET', 'POST'])
 def story_detail(story_id):
     story = Submission.query.get_or_404(story_id)
-    return render_template('story_detail.html', story=story)
+    comment_form = CommentForm()
+    
+    if comment_form.validate_on_submit():
+        comment = Comment(
+            content=comment_form.content.data,
+            author_name=comment_form.author_name.data,
+            story_id=story_id
+        )
+        db.session.add(comment)
+        db.session.commit()
+        flash('Your comment has been posted!', 'success')
+        return redirect(url_for('story_detail', story_id=story_id))
+    
+    return render_template('story_detail.html', story=story, comment_form=comment_form)
 
 @app.route('/submit', methods=['GET', 'POST'])
 def submit_story():

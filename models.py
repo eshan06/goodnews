@@ -14,4 +14,12 @@ class Submission(db.Model):
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     reviewed_at = db.Column(db.DateTime)
-    reviewer_notes = db.Column(db.Text) 
+    reviewer_notes = db.Column(db.Text)
+    comments = db.relationship('Comment', backref='story', lazy=True)
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    author_name = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    story_id = db.Column(db.Integer, db.ForeignKey('submission.id'), nullable=False) 

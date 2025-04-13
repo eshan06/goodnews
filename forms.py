@@ -28,4 +28,8 @@ class SubmissionForm(FlaskForm):
     image_url = URLField('Image URL (optional)', validators=[
         Optional(),
         Length(max=500)
-    ]) 
+    ])
+
+class CommentForm(FlaskForm):
+    content = TextAreaField('Comment', validators=[DataRequired()])
+    author_name = StringField('Your Name', validators=[DataRequired(), Length(max=100)]) 
