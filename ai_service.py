@@ -1,6 +1,5 @@
 import os
 import openai
-from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,27 +7,30 @@ load_dotenv()
 class AIService:
     def __init__(self):
         self.api_key = os.getenv('OPENAI_API_KEY')
-        if self.api_key:
-            self.client = OpenAI(api_key=self.api_key)
+        if not self.api_key:
+            print("Warning: OPENAI_API_KEY not found in environment variables!")
         else:
-            self.client = None
-        
+            openai.api_key = self.api_key
+
     def summarize_article(self, article_text):
         """Generate a summary of an article using OpenAI GPT model"""
         try:
             if not self.api_key:
                 return self._get_mock_summary(article_text)
                 
-            response = self.client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that summarizes news articles."},
-                    {"role": "user", "content": f"Please provide a concise summary of this article in 3-4 paragraphs:\n\n{article_text}"}
+                    {"role": "system", "content": "You are a helpful assistant specializing in summarizing news articles."},
+                    {"role": "user", "content": (
+                        "Please provide a concise summary of the following news article in 3-4 paragraphs. "
+                        "The summary should be in your own words, avoid repeating long excerpts, and do not include any HTML or extraneous formatting:\n\n"
+                        f"{article_text}"
+                    )}
                 ],
                 max_tokens=500,
                 temperature=0.7
             )
-            
             return response.choices[0].message.content.strip()
         except Exception as e:
             print(f"Error generating summary: {str(e)}")
@@ -40,7 +42,7 @@ class AIService:
             if not self.api_key:
                 return "Article Analysis"
                 
-            response = self.client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that extracts or generates titles for news articles."},
@@ -49,7 +51,6 @@ class AIService:
                 max_tokens=50,
                 temperature=0.7
             )
-            
             return response.choices[0].message.content.strip().replace('"', '').replace("'", "")
         except Exception as e:
             print(f"Error generating title: {str(e)}")
@@ -61,23 +62,31 @@ class AIService:
             if not self.api_key:
                 return self._get_mock_response(article_text, messages)
                 
-            # Prepare the conversation history
             conversation = [
-                {"role": "system", "content": f"You are a helpful assistant answering questions about a news article. Here is the article:\n\n{article_text}\n\nAnswer questions based on this article only. If you don't know the answer from the article, say so."}
+                {
+                    "role": "system", 
+                    "content": (
+                        "You are a knowledgeable and objective assistant specialized in discussing news articles. "
+                        "Your responses should be clear, concise, and based solely on the provided article content. "
+                        "If a question goes beyond the details in the article, state that the information isn't available instead of guessing. "
+                        "Ensure your tone is neutral and factual."
+                    )
+                },
             ]
             
-            # Add previous messages
             for msg in messages:
                 role = "user" if msg.is_user else "assistant"
                 conversation.append({"role": role, "content": msg.content})
             
-            response = self.client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=conversation,
                 max_tokens=500,
-                temperature=0.7
+                temperature=0.5,
+                top_p=1.0,
+                frequency_penalty=0,
+                presence_penalty=0 
             )
-            
             return response.choices[0].message.content.strip()
         except Exception as e:
             print(f"Error in chat: {str(e)}")
@@ -87,11 +96,9 @@ class AIService:
         """Provide a mock summary when API key is not available"""
         words = article_text.split()
         if len(words) > 100:
-            # Take some sentences from beginning, middle, and end
             first_part = ' '.join(words[:50])
             middle_part = ' '.join(words[len(words)//2-25:len(words)//2+25])
             last_part = ' '.join(words[-50:])
-            
             return f"Summary (AI key not configured):\n\n{first_part}...\n\n{middle_part}...\n\n{last_part}"
         else:
             return article_text
@@ -99,4 +106,4 @@ class AIService:
     def _get_mock_response(self, article_text, messages):
         """Provide a mock response when API key is not available"""
         last_message = messages[-1].content if messages else "Tell me about this article"
-        return f"I'd be happy to help with '{last_message}', but the OpenAI API key is not configured. Please add your API key to the .env file to enable AI responses." 
+        return f"I'd be happy to help with '{last_message}', but the OpenAI API key is not configured. Please add your API key to the .env file to enable AI responses."
