@@ -56,12 +56,18 @@ def category_page(category):
     if category not in CATEGORIES:
         return "Category not found", 404
     
-    # Clear any cached articles for this category
-    if 'shown_articles' in session:
-        session['shown_articles'].pop(category, None)
+    # Clear the session cache completely
+    session.clear()
     
     # Get fresh articles from the news service
     articles = news_service.get_positive_news(category, page_size=9)
+    
+    # If we don't have enough articles, try to get more
+    if len(articles) < 9:
+        additional_articles = news_service.get_positive_news(category, page_size=9)
+        if additional_articles:
+            articles.extend(additional_articles)
+            articles = articles[:9]  # Ensure we don't exceed 9 articles
     
     return render_template('category.html',
                          category=CATEGORIES[category],

@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import random
 import hashlib
+import time
 
 load_dotenv()
 
@@ -15,13 +16,17 @@ class NewsService:
         
     def get_positive_news(self, category, page_size=9):
         try:
-            # Try NewsAPI first
-            articles = self._fetch_from_newsapi(category, page_size)
+            # Add timestamp to prevent caching
+            timestamp = int(time.time())
+            
+            # Try NewsAPI first with a random page number to get different results
+            page = random.randint(1, 5)  # Random page between 1 and 5
+            articles = self._fetch_from_newsapi(category, page_size, timestamp, page)
             if articles and len(articles) >= page_size:
                 return articles
                 
             # If NewsAPI fails or doesn't return enough articles, try The Guardian
-            guardian_articles = self._fetch_from_guardian(category, page_size)
+            guardian_articles = self._fetch_from_guardian(category, page_size, timestamp)
             if guardian_articles:
                 if articles:
                     articles.extend(guardian_articles)
@@ -30,7 +35,7 @@ class NewsService:
                     
             # If we still don't have enough articles, try NYT
             if len(articles) < page_size:
-                nyt_articles = self._fetch_from_nyt(category, page_size)
+                nyt_articles = self._fetch_from_nyt(category, page_size, timestamp)
                 if nyt_articles:
                     articles.extend(nyt_articles)
                     
@@ -45,7 +50,7 @@ class NewsService:
             print(f"Error fetching news: {str(e)}")
             return self._get_fallback_articles(category, page_size)
     
-    def _fetch_from_newsapi(self, category, page_size):
+    def _fetch_from_newsapi(self, category, page_size, timestamp, page=1):
         if not self.news_api_key:
             return []
             
@@ -73,7 +78,8 @@ class NewsService:
                 'category': 'education',
                 'keywords': ['education access', 'learning innovation', 'student success', 
                            'educational program', 'scholarship', 'digital learning',
-                           'educational technology', 'student achievement', 'learning initiative']
+                           'educational technology', 'student achievement', 'learning initiative',
+                           'education reform', 'school improvement', 'teaching innovation']
             }
         }
         
@@ -94,7 +100,9 @@ class NewsService:
             'sortBy': 'relevancy',
             'language': 'en',
             'pageSize': page_size * 2,
-            'apiKey': self.news_api_key
+            'page': page,  # Add page parameter
+            'apiKey': self.news_api_key,
+            '_': timestamp  # Add timestamp to prevent caching
         }
         
         response = requests.get(url, params=params)
@@ -103,7 +111,7 @@ class NewsService:
             return self._process_articles(articles, page_size)
         return []
     
-    def _fetch_from_guardian(self, category, page_size):
+    def _fetch_from_guardian(self, category, page_size, timestamp):
         if not self.guardian_api_key:
             return []
             
@@ -123,7 +131,7 @@ class NewsService:
             },
             'education': {
                 'section': 'education',
-                'keywords': ['education', 'schools', 'learning', 'students']
+                'keywords': ['education', 'schools', 'learning', 'students', 'teaching', 'education reform']
             }
         }
         
@@ -135,7 +143,8 @@ class NewsService:
             'q': f"({' OR '.join(category_info['keywords'])}) AND (positive OR good OR progress OR success)",
             'show-fields': 'thumbnail,trailText',
             'page-size': page_size * 2,
-            'api-key': self.guardian_api_key
+            'api-key': self.guardian_api_key,
+            '_': timestamp  # Add timestamp to prevent caching
         }
         
         response = requests.get(url, params=params)
@@ -144,7 +153,7 @@ class NewsService:
             return self._process_guardian_articles(articles, page_size)
         return []
     
-    def _fetch_from_nyt(self, category, page_size):
+    def _fetch_from_nyt(self, category, page_size, timestamp):
         if not self.nyt_api_key:
             return []
             
@@ -164,7 +173,7 @@ class NewsService:
             },
             'education': {
                 'section': 'education',
-                'keywords': ['education', 'schools', 'learning', 'students']
+                'keywords': ['education', 'schools', 'learning', 'students', 'teaching', 'education reform']
             }
         }
         
@@ -176,7 +185,8 @@ class NewsService:
             'fq': f'section_name:("{category_info["section"]}")',
             'sort': 'newest',
             'page-size': page_size * 2,
-            'api-key': self.nyt_api_key
+            'api-key': self.nyt_api_key,
+            '_': timestamp  # Add timestamp to prevent caching
         }
         
         response = requests.get(url, params=params)
