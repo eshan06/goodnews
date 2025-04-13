@@ -17,12 +17,31 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for article in articles %}
         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            <img src="{{ article.image }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+            {% if article.url %}
+            <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
+                <img src="{{ article.image }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+            </a>
+            {% else %}
+                <img src="{{ article.image }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+            {% endif %}
             <div class="p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ article.title }}</h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                    {% if article.url %}
+                    <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="hover:text-green-600 transition-colors">
+                        {{ article.title }}
+                    </a>
+                    {% else %}
+                        {{ article.title }}
+                    {% endif %}
+                </h2>
                 <p class="text-gray-600 mb-4">{{ article.excerpt }}</p>
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-500">{{ article.date }}</span>
+                    {% if article.url %}
+                    <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:text-green-800 text-sm font-medium">
+                        Read Full Article →
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

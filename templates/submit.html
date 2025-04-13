@@ -35,7 +35,7 @@
 
         <div>
             <label for="name" class="block text-sm font-medium text-gray-700">Your Name</label>
-            {{ form.name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2") }}
+            {{ form.name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 px-4 py-2", readonly=true) }}
             {% if form.name.errors %}
                 <p class="mt-1 text-sm text-red-600">{{ form.name.errors[0] }}</p>
             {% endif %}
@@ -43,7 +43,7 @@
 
         <div>
             <label for="email" class="block text-sm font-medium text-gray-700">Your Email</label>
-            {{ form.email(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2") }}
+            {{ form.email(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 px-4 py-2", readonly=true) }}
             {% if form.email.errors %}
                 <p class="mt-1 text-sm text-red-600">{{ form.email.errors[0] }}</p>
             {% endif %}

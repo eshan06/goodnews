@@ -54,5 +54,4 @@ class SubmissionForm(FlaskForm):
     ])
 
 class CommentForm(FlaskForm):
-    content = TextAreaField('Comment', validators=[DataRequired()])
-    name = StringField('Your Name', validators=[DataRequired(), Length(max=100)]) 
+    content = TextAreaField('Comment', validators=[DataRequired()]) 

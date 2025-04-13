@@ -95,6 +95,7 @@ def user_news():
     return render_template('user_news.html', submissions=submissions)
 
 @app.route('/user-news/<int:story_id>', methods=['GET', 'POST'])
+@login_required
 def story_detail(story_id):
     story = Submission.query.get_or_404(story_id)
     comment_form = CommentForm()
@@ -102,7 +103,7 @@ def story_detail(story_id):
     if comment_form.validate_on_submit():
         comment = Comment(
             content=comment_form.content.data,
-            name=comment_form.name.data,
+            name=current_user.username,  # Use the logged-in user's name
             story_id=story_id
         )
         db.session.add(comment)
@@ -117,18 +118,17 @@ def story_detail(story_id):
 def submit_story():
     form = SubmissionForm()
     
-    # Pre-populate email field if user is logged in
-    if request.method == 'GET':
-        form.email.data = current_user.email
-        form.name.data = current_user.username
+    # Always set the name and email fields from the current user
+    form.name.data = current_user.username
+    form.email.data = current_user.email
     
     if form.validate_on_submit():
         new_submission = Submission(
             title=form.title.data,
             content=form.content.data,
             category=form.category.data,
-            name=form.name.data,
-            email=form.email.data,
+            name=current_user.username,  # Use the logged-in user's name
+            email=current_user.email,    # Use the logged-in user's email
             image_url=form.image_url.data
         )
         db.session.add(new_submission)
