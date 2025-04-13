@@ -214,6 +214,10 @@ def ai_assistant():
         # Generate summary
         summary = ai_service.summarize_article(article_text)
         
+        # Clean up the summary if necessary
+        if "Summary (AI key not configured):" in summary:
+            summary = summary.split("Summary (AI key not configured):")[1].strip()
+            
         # Create a new chat session
         session = ChatSession(
             title=title,
@@ -222,11 +226,9 @@ def ai_assistant():
             user_id=current_user.id if current_user.is_authenticated else None
         )
         
-        # Add the AI's initial message (the summary)
-        initial_message = f"Here's a summary of the article from {original_url}:\n\n{summary}"
-        
+        # Add the AI's initial message (just the summary without metadata)
         ai_message = ChatMessage(
-            content=initial_message,
+            content=summary,
             is_user=False,
             session=session
         )
