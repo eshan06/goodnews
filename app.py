@@ -107,6 +107,16 @@ def category_page(category):
                          category=CATEGORIES[category],
                          articles=articles)
 
+@app.route('/user-news')
+def user_news():
+    stories = Submission.query.order_by(Submission.created_at.desc()).all()
+    return render_template('user_news.html', stories=stories)
+
+@app.route('/user-news/<int:story_id>')
+def story_detail(story_id):
+    story = Submission.query.get_or_404(story_id)
+    return render_template('story_detail.html', story=story)
+
 @app.route('/submit', methods=['GET', 'POST'])
 def submit_story():
     form = SubmissionForm()
@@ -121,8 +131,8 @@ def submit_story():
         )
         db.session.add(submission)
         db.session.commit()
-        flash('Thank you for your submission! Our team will review it soon.', 'success')
-        return redirect(url_for('home'))
+        flash('Thank you for your submission! Your story has been published.', 'success')
+        return redirect(url_for('user_news'))
     return render_template('submit.html', form=form)
 
 if __name__ == '__main__':

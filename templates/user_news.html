@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}User News{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">📰 User News</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Discover inspiring stories shared by our community members. Each story represents a unique perspective on positive change and progress.</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for story in stories %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            {% if story.image_url %}
+            <img src="{{ story.image_url }}" alt="{{ story.title }}" class="w-full h-48 object-cover">
+            {% endif %}
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                    <a href="/user-news/{{ story.id }}" class="hover:text-green-600 transition-colors">
+                        {{ story.title }}
+                    </a>
+                </h2>
+                <div class="flex items-center justify-between mt-4">
+                    <span class="text-sm text-gray-500">By {{ story.author_name }}</span>
+                    <span class="text-sm text-gray-500">{{ story.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

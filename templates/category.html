@@ -3,20 +3,24 @@
 {% block title %}{{ category.name }}{% endblock %}
 
 {% block content %}
-<div class="space-y-8">
-    <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ category.icon }} {{ category.name }}</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">{{ category.description }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for article in articles %}
-        <a href="{{ article.url }}" target="_blank" class="block">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                <img src="{{ article.image }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
-                <div class="p-6">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            <img src="{{ article.image }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ article.title }}</h2>
+                <p class="text-gray-600 mb-4">{{ article.excerpt }}</p>
+                <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-500">{{ article.date }}</span>
-                    <h3 class="text-xl font-bold text-gray-900 mt-2">{{ article.title }}</h3>
-                    <p class="text-gray-600 mt-2">{{ article.excerpt }}</p>
                 </div>
             </div>
-        </a>
+        </div>
         {% endfor %}
     </div>
 </div>
