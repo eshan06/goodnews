@@ -17,22 +17,22 @@
                         </a>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="/" class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-green-500 text-sm font-medium">
+                        <a href="/" class="{% if request.path == '/' %}text-gray-900 border-b-2 border-green-500{% else %}text-gray-500 hover:text-gray-900 border-b-2 border-transparent{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium">
                             Home
                         </a>
-                        <a href="/climate" class="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium">
+                        <a href="/climate" class="{% if request.path == '/climate' %}text-gray-900 border-b-2 border-green-500{% else %}text-gray-500 hover:text-gray-900 border-b-2 border-transparent{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium">
                             Climate
                         </a>
-                        <a href="/social-justice" class="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium">
+                        <a href="/social-justice" class="{% if request.path == '/social-justice' %}text-gray-900 border-b-2 border-green-500{% else %}text-gray-500 hover:text-gray-900 border-b-2 border-transparent{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium">
                             Social Justice
                         </a>
-                        <a href="/health" class="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium">
+                        <a href="/health" class="{% if request.path == '/health' %}text-gray-900 border-b-2 border-green-500{% else %}text-gray-500 hover:text-gray-900 border-b-2 border-transparent{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium">
                             Health
                         </a>
-                        <a href="/education" class="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium">
+                        <a href="/education" class="{% if request.path == '/education' %}text-gray-900 border-b-2 border-green-500{% else %}text-gray-500 hover:text-gray-900 border-b-2 border-transparent{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium">
                             Education
                         </a>
-                        <a href="/user-news" class="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium">
+                        <a href="/user-news" class="{% if request.path == '/user-news' %}text-gray-900 border-b-2 border-green-500{% else %}text-gray-500 hover:text-gray-900 border-b-2 border-transparent{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium">
                             User News
                         </a>
                     </div>

@@ -7,6 +7,11 @@
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ category.icon }} {{ category.name }}</h1>
         <p class="text-xl text-gray-600 max-w-3xl mx-auto">{{ category.description }}</p>
+        <div class="mt-6">
+            <a href="{{ url_for('category_page', category=current_category) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200">
+                🔄 Refresh Articles
+            </a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
