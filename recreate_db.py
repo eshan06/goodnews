@@ -1,4 +1,4 @@
-from app import app, db, User, Submission, Comment
+from api.app import app, db, User, Submission, Comment
 from datetime import datetime
 
 with app.app_context():
