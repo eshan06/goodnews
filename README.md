@@ -1,7 +1,7 @@
 # GoodNews
 
 A web application that curates and delivers positive news content with AI-powered article analysis.
-Try the demo: https://goodnews-2k4czagu8-eshans-projects-711db420.vercel.app/
+Try the demo: https://goodnews-lac.vercel.app/
 
 ## Project Overview
 
